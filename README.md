@@ -50,10 +50,10 @@ And helper tasks are defined to start/stop this service with environment variabl
 ```bash
 # NOTE: Environment variables `AWS_ACCESS_KEY_ID`/`AWS_SECRET_ACCESS_KEY` should be set with secure way.
 # Start
-$ rake registry:start[ap-northeast-1,my-registry]
+$ bundle exec rake registry:start[ap-northeast-1,my-registry]
 
 # Stop
-$ rake registry:stop
+$ bundle exec rake registry:stop
 ```
 
 ### Variables
@@ -75,7 +75,7 @@ Now, no test exists for this service.
 Task
 ----
 
-As we use tasks to deploy service, several utility tasks are defined. You can check them with `rake -D`.
+As we use tasks to deploy service, several utility tasks are defined. You can check them with `bundle exec rake -D`.
 
 Note/Limitation
 ---------------
