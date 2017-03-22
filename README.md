@@ -48,7 +48,7 @@ $ ansible-playbook deploy/stop_registry.yml -i tests/inventory/hosts -l test_hos
 
 ### Variables
 
-There are variables related to the playbook to start service(=`start_registry.yml`).
+There are variables related to the playbook to start service(`start_registry.yml`).
 
 |name|description|default value|
 |---|---|---|
@@ -57,6 +57,12 @@ There are variables related to the playbook to start service(=`start_registry.ym
 |registry_storage_s3_rootdirectory|`rootdirectory` parameter of [s3 storage driver](https://docs.docker.com/registry/storage-drivers/s3/#parameters).|'/'|
 |registry_storage_s3_accesskey|`accesskey` parameter of [s3 storage driver](https://docs.docker.com/registry/storage-drivers/s3/#parameters).|''(empty string)|
 |registry_storage_s3_secretkey|`secretkey` parameter of [s3 storage driver](https://docs.docker.com/registry/storage-drivers/s3/#parameters).|''(empty string)|
+
+Following variable related to both playbooks to start/stop service(`start_registry.yml` and `stop_registry.yml`)
+
+|name|description|default value|
+|---|---|---|
+|registry_docker_command_become|If yes(true), docker command is executed with sudo.|false|
 
 Test
 ----

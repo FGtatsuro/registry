@@ -6,6 +6,7 @@
         registry_storage_s3_rootdirectory: "{{ registry_storage_s3_rootdirectory|default('/') }}"
         registry_storage_s3_accesskey: "{{ registry_storage_s3_accesskey|default('') }}"
         registry_storage_s3_secretkey: "{{ registry_storage_s3_secretkey|default('') }}"
+        registry_docker_command_become: "{{ registry_docker_command_become|default(false) }}"
   tasks:
     - block:
       - name: Check whether registry already runs
@@ -23,4 +24,4 @@
           REGISTRY_STORAGE_S3_SECRETKEY={{ registry_storage_s3_secretkey }}
           docker run -d -p 5000:5000 --name service-registry registry:2.5
         when: check_registry_run.rc != 0
-      become: no
+      become: "{{ registry_docker_command_become|bool }}"

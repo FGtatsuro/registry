@@ -1,5 +1,8 @@
 ---
 - hosts: all
+  pre_tasks:
+    - set_fact:
+        registry_docker_command_become: "{{ registry_docker_command_become|default(false) }}"
   tasks:
     - block:
       - name: Check whether registry already runs
@@ -10,4 +13,4 @@
       - name: Stop registry container
         command: docker rm -f service-registry
         when: check_registry_run.rc == 0
-      become: no
+      become: "{{ registry_docker_command_become|bool }}"
