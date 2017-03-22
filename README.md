@@ -13,13 +13,11 @@ Requirements
 
 The dependencies on other softwares/libraries for this service are as follows.
 
-- Docker (1.12.x)
-- Docker Compose (1.9.x)
+- Docker (>= 1.12.x)
 
-For tests/utility tasks, it's better to install following softwares/libraries.
+For utility tasks, it's better to install following softwares/libraries.
 
-- Ruby (>= 2.2.x)
-- Rake (>= 11.x)
+- [Ansible](http://docs.ansible.com/ansible/index.html) (>= 2.2.x)
 
 Build
 -----
@@ -37,48 +35,38 @@ Deploy
 We can start/stop this service as follows.
 
 ```bash
-# You must set specified environment variables before server starts. (Describe later)
-# Start
-$ (cd deploy/docker/ && docker-compose up -d)
+# These inventory file is for testing. Please use your inventory files.
+# Start registry
+$ ansible-playbook deploy/start_registry.yml -i tests/inventory/hosts -l test_host \
+  --extra-vars="registry_storage_s3_accesskey=AKIAIOSFODNN7EXAMPLE \
+  registry_storage_s3_secretkey=wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY \
+  registry_storage_s3_bucket=registry-bucket"
 
-# Stop
-$ (cd deploy/docker/ && docker-compose down)
-```
-
-And helper tasks are defined to start/stop this service with environment variables.
-
-```bash
-# NOTE: Environment variables `AWS_ACCESS_KEY_ID`/`AWS_SECRET_ACCESS_KEY` should be set with secure way.
-# Start
-$ bundle exec rake registry:start[ap-northeast-1,my-registry]
-
-# Stop
-$ bundle exec rake registry:stop
+# Stop registry
+$ ansible-playbook deploy/stop_registry.yml -i tests/inventory/hosts -l test_host
 ```
 
 ### Variables
 
-These are the environment variables to control this service. These must be set before this service starts.
+There are variables related to the playbook to start service(=`start_registry.yml`).
 
-|name|description|example value|
+|name|description|default value|
 |---|---|---|
-|REGISTRY_STORAGE_S3_ACCESSKEY|AWS access key id to access S3 bucket `REGISTRY_STORAGE_S3_BUCKET`. In default, the value of `AWS_ACCESS_KEY_ID` environment variable is used.|AKIAIOSFODNN7EXAMPLE|
-|REGISTRY_STORAGE_S3_SECRETKEY|AWS secret access key to access S3 bucket `REGISTRY_STORAGE_S3_BUCKET`. In default, the value of `AWS_SECRET_ACCESS_KEY` environment variable is used.|wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY|
-|REGISTRY_STORAGE_S3_REGION|Region where S3 bucket `REGISTRY_STORAGE_S3_BUCKET` exists|ap-northeast-1|
-|REGISTRY_STORAGE_S3_BUCKET|S3 bucket which container images are saved in.|my-registry|
+|registry_storage_s3_region|`region` parameter of [s3 storage driver](https://docs.docker.com/registry/storage-drivers/s3/#parameters).|'ap-northeast-1'|
+|registry_storage_s3_bucket|`bucket` parameter of [s3 storage driver](https://docs.docker.com/registry/storage-drivers/s3/#parameters). This is a required variable.|It isn't defined in default.|
+|registry_storage_s3_rootdirectory|`rootdirectory` parameter of [s3 storage driver](https://docs.docker.com/registry/storage-drivers/s3/#parameters).|'/'|
+|registry_storage_s3_accesskey|`accesskey` parameter of [s3 storage driver](https://docs.docker.com/registry/storage-drivers/s3/#parameters).|''(empty string)|
+|registry_storage_s3_secretkey|`secretkey` parameter of [s3 storage driver](https://docs.docker.com/registry/storage-drivers/s3/#parameters).|''(empty string)|
 
 Test
 ----
 
 Now, no test exists for this service.
 
-Task
-----
-
-As we use tasks to deploy service, several utility tasks are defined. You can check them with `bundle exec rake -D`.
-
 Note/Limitation
 ---------------
 
-- We must create S3 bucket `REGISTRY_STORAGE_S3_BUCKET` in region `REGISTRY_STORAGE_S3_REGION` before this service starts, and access the bucket from host service runs with the permission `REGISTRY_STORAGE_S3_ACCESSKEY`/`REGISTRY_STORAGE_S3_SECRETKEY` provides.
-- Hosts which pull/push images via this service must accept insecure HTTP connection. Please check [Docker official document](https://docs.docker.com/registry/insecure/#/deploying-a-plain-http-registry).
+- We must create S3 bucket(=`registry_storage_s3_bucket`) in specified region(=`registry_storage_s3_region`) before this service starts,
+  and access the bucket from hosts where service runs with the permission `registry_storage_s3_accesskey`/`registry_storage_s3_secretkey` pair provides.
+- Hosts which pull/push images via this service must accept insecure HTTP connection.
+  Please check [Docker official document](https://docs.docker.com/registry/insecure/#/deploying-a-plain-http-registry).

@@ -1,0 +1,26 @@
+---
+- hosts: all
+  pre_tasks:
+    - set_fact:
+        registry_storage_s3_region: "{{ registry_storage_s3_region|default('ap-northeast-1') }}"
+        registry_storage_s3_rootdirectory: "{{ registry_storage_s3_rootdirectory|default('/') }}"
+        registry_storage_s3_accesskey: "{{ registry_storage_s3_accesskey|default('') }}"
+        registry_storage_s3_secretkey: "{{ registry_storage_s3_secretkey|default('') }}"
+  tasks:
+    - block:
+      - name: Check whether registry already runs
+        command: docker inspect service-registry
+        register: check_registry_run
+        changed_when: no
+        ignore_errors: yes
+      - name: Start registry container
+        shell: >+
+          REGISTRY_STORAGE=s3
+          REGISTRY_STORAGE_S3_REGION={{ registry_storage_s3_region }}
+          REGISTRY_STORAGE_S3_BUCKET={{ registry_storage_s3_bucket }}
+          REGISTRY_STORAGE_S3_ROOTDIRECTORY={{ registry_storage_s3_rootdirectory }}
+          REGISTRY_STORAGE_S3_ACCESSKEY={{ registry_storage_s3_accesskey }}
+          REGISTRY_STORAGE_S3_SECRETKEY={{ registry_storage_s3_secretkey }}
+          docker run -d -p 5000:5000 --name service-registry registry:2.5
+        when: check_registry_run.rc != 0
+      become: no

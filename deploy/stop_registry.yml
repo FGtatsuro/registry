@@ -1,0 +1,13 @@
+---
+- hosts: all
+  tasks:
+    - block:
+      - name: Check whether registry already runs
+        command: docker inspect service-registry
+        register: check_registry_run
+        changed_when: no
+        ignore_errors: yes
+      - name: Stop registry container
+        command: docker rm -f service-registry
+        when: check_registry_run.rc == 0
+      become: no
