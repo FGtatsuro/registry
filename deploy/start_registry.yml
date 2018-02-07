@@ -9,6 +9,13 @@
         registry_docker_command_become: "{{ registry_docker_command_become|default(false) }}"
   tasks:
     - block:
+      - name: Ensure docker daemon runs
+        service:
+          name: docker
+          state: started
+          enabled: yes
+        # OSX stuff: https://forums.docker.com/t/restart-docker-from-command-line/9420
+        when: ansible_os_family != 'Darwin'
       - name: Check whether registry already runs
         command: docker inspect service-registry
         register: check_registry_run
